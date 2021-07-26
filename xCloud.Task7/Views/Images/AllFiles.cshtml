@@ -1,0 +1,35 @@
+﻿@model List<ImageMetadataModel>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>FileExtension</th>
+        <th>SizeInBytes</th>
+        <th>UpdatedOn</th>
+        <th>Download</th>
+        <th>Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach (var image in Model)
+    {
+        <tr>
+            <td>@image.Id</td>
+            <td>@image.Name</td>
+            <td>@image.FileExtension</td>
+            <td>@image.SizeInBytes</td>
+            <td>@image.UpdatedOn</td>
+            <td>
+                <a class="btn btn-success" href="/Images/DownloadFileByName/@image.Id">Download</a>
+            </td>
+            <td>
+                <a class="btn btn-danger" href="/Images/DeleteFile/@image.Id">Delete</a>
+            </td>
+        </tr>
+    }
+    
+    </tbody>
+</table>
