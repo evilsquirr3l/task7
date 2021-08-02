@@ -17,18 +17,18 @@ namespace xCloud.Task7.Services
             _blobDbContext = blobDbContext;
         }
 
-        public async Task AddAsync(ImageMetadataModel image)
+        public async Task AddMetadataToDatabaseAsync(ImageMetadataModel image)
         {
             await _blobDbContext.Images.AddAsync(image);
             await _blobDbContext.SaveChangesAsync();
         }
 
-        public async Task<List<ImageMetadataModel>> GetImagesMetadata()
+        public async Task<List<ImageMetadataModel>> GetImagesMetadataAsync()
         {
             return await _blobDbContext.Images.ToListAsync();
         }
 
-        public async Task<List<ImageMetadataModel>> GetImageByImageName(string imageName)
+        public async Task<List<ImageMetadataModel>> GetImagesMetadataByNameAsync(string imageName)
         {
             var imagesWithName = await _blobDbContext.Images
                 .Where(x => x.Name.Equals(imageName))
@@ -37,14 +37,14 @@ namespace xCloud.Task7.Services
             return imagesWithName;
         }
 
-        public async Task<ImageMetadataModel> GetImageByIdAsync(int id)
+        public async Task<ImageMetadataModel> GetImageMetadataByIdAsync(int imageId)
         {
-            return await _blobDbContext.Images.FindAsync(id);
+            return await _blobDbContext.Images.FindAsync(imageId);
         }
 
-        public async Task<ImageMetadataModel> DeleteByIdAsync(int id)
+        public async Task<ImageMetadataModel> DeleteMetadataByIdAsync(int imageId)
         {
-            var image = await _blobDbContext.Images.FindAsync(id);
+            var image = await _blobDbContext.Images.FindAsync(imageId);
 
             if (image is not null)
             {

@@ -31,7 +31,7 @@ namespace xCloud.Task7.Controllers
             {
                 var image = await _bucketService.UploadFileToS3BucketAsync(file);
                 
-                await _imageService.AddAsync(image);
+                await _imageService.AddMetadataToDatabaseAsync(image);
             }
             catch (AmazonS3Exception amazonS3Exception)
             {
@@ -51,14 +51,14 @@ namespace xCloud.Task7.Controllers
         
         public async Task<IActionResult> AllFiles()
         {
-            return View(await _imageService.GetImagesMetadata());
+            return View(await _imageService.GetImagesMetadataAsync());
         }
 
         public async Task<IActionResult> DownloadFileAsync(int id)
         {
             try
             {
-                var image = await _imageService.GetImageByIdAsync(id);
+                var image = await _imageService.GetImageMetadataByIdAsync(id);
                 var bucketObjectResponse = await _bucketService.DownloadFileAsync(image);
                 
                 if (bucketObjectResponse == null)
@@ -87,7 +87,7 @@ namespace xCloud.Task7.Controllers
         {
             try
             {
-                var imageName = await _imageService.DeleteByIdAsync(id);
+                var imageName = await _imageService.DeleteMetadataByIdAsync(id);
                 
                 await _bucketService.DeleteFileAsync(imageName);
             }

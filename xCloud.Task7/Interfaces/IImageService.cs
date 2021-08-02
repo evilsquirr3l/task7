@@ -6,14 +6,14 @@ namespace xCloud.Task7.Interfaces
 {
     public interface IImageService
     {
-        Task AddAsync(ImageMetadataModel image);
+        Task AddMetadataToDatabaseAsync(ImageMetadataModel image);
 
-        Task<List<ImageMetadataModel>> GetImagesMetadata();
+        Task<List<ImageMetadataModel>> GetImagesMetadataAsync();
         
-        Task<ImageMetadataModel> DeleteByIdAsync(int id);
+        Task<ImageMetadataModel> DeleteMetadataByIdAsync(int imageId);
         
-        Task<List<ImageMetadataModel>> GetImageByImageName(string imageName);
+        Task<List<ImageMetadataModel>> GetImagesMetadataByNameAsync(string imageName);
 
-        Task<ImageMetadataModel> GetImageByIdAsync(int id);
+        Task<ImageMetadataModel> GetImageMetadataByIdAsync(int imageId);
     }
 }

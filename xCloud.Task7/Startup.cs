@@ -25,7 +25,7 @@ namespace xCloud.Task7
         {
             services.Configure<AppSettings>(Configuration.GetSection("AwsSettings"));
             
-            var connectionString = Configuration.GetConnectionString("DatabaseConnection");
+            var connectionString = Configuration.GetConnectionString("LocalPostgres");
 
             services.AddDbContextPool<BlobDbContext>(opt => 
                 opt.UseNpgsql(connectionString));
