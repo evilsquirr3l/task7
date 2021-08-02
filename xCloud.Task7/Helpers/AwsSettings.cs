@@ -9,5 +9,7 @@ namespace xCloud.Task7.Helpers
         public string SecretKey { get; set; }
         
         public string FolderName { get; set; }
+
+        public string Region { get; set; }
     }
 }

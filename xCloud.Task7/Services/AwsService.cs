@@ -20,7 +20,7 @@ namespace xCloud.Task7.Services
             var credentials = new BasicAWSCredentials(_appSettings.AccessKey, _appSettings.SecretKey);
             var config = new AmazonS3Config
             {
-                RegionEndpoint = Amazon.RegionEndpoint.EUCentral1
+                RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(_appSettings.Region)
             };
 
             using var client = new AmazonS3Client(credentials, config);
