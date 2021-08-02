@@ -23,8 +23,7 @@ namespace xCloud.Task7.Services
                 RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(_appSettings.Region)
             };
 
-            using var client = new AmazonS3Client(credentials, config);
-            return client;
+            return new AmazonS3Client(credentials, config);
         }
     }
 }

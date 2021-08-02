@@ -25,7 +25,7 @@ namespace xCloud.Task7.Services
         
         public async Task DeleteFileAsync(ImageMetadataModel image)
         {
-            var client = _awsService.GetBucketAccessClient();
+            using var client = _awsService.GetBucketAccessClient();
 
             var fileTransferUtility = new TransferUtility(client);
             
@@ -38,7 +38,7 @@ namespace xCloud.Task7.Services
         
         public async Task<GetObjectResponse> DownloadFileAsync(ImageMetadataModel image)
         {
-            var client = _awsService.GetBucketAccessClient();
+            using var client = _awsService.GetBucketAccessClient();
 
             var fileTransferUtility = new TransferUtility(client);
 
@@ -57,7 +57,7 @@ namespace xCloud.Task7.Services
                 ? _appSettings.BucketName + @"/" + _appSettings.FolderName
                 : _appSettings.BucketName;
 
-            var client = _awsService.GetBucketAccessClient();
+            using var client = _awsService.GetBucketAccessClient();
             await using var newMemoryStream = new MemoryStream();
             await file.CopyToAsync(newMemoryStream);
 
