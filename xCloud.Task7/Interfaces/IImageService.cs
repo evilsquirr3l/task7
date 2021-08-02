@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using xCloud.Task7.Models;
 
-namespace xCloud.Task7.Data
+namespace xCloud.Task7.Interfaces
 {
     public interface IImageService
     {
@@ -10,7 +10,7 @@ namespace xCloud.Task7.Data
 
         Task<List<ImageMetadataModel>> GetImagesMetadata();
         
-        Task DeleteAsync(ImageMetadataModel image);
+        Task<ImageMetadataModel> DeleteByIdAsync(int id);
         
         Task<List<ImageMetadataModel>> GetImageByImageName(string imageName);
 

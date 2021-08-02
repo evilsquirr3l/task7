@@ -1,28 +1,21 @@
 ﻿using System;
-using System.IO;
 using System.Threading.Tasks;
-using Amazon.Runtime;
 using Amazon.S3;
-using Amazon.S3.Model;
-using Amazon.S3.Transfer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using xCloud.Task7.Data;
-using xCloud.Task7.Helpers;
-using xCloud.Task7.Models;
+using xCloud.Task7.Interfaces;
 
 namespace xCloud.Task7.Controllers
 {
     public class ImagesController : Controller
     {
-        private readonly AppSettings _appSettings;
         private readonly IImageService _imageService;
+        private readonly IBucketService _bucketService;
 
-        public ImagesController(IOptions<AppSettings> appSettings, IImageService imageService)
+        public ImagesController(IImageService imageService, IBucketService bucketService)
         {
             _imageService = imageService;
-            _appSettings = appSettings.Value;
+            _bucketService = bucketService;
         }
 
         [HttpGet]
@@ -36,47 +29,9 @@ namespace xCloud.Task7.Controllers
         {
             try
             {
-                var bucketName = !string.IsNullOrWhiteSpace(_appSettings.FolderName)
-                    ? _appSettings.BucketName + @"/" + _appSettings.FolderName
-                    : _appSettings.BucketName;
-
-                var credentials = new BasicAWSCredentials(_appSettings.AccessKey, _appSettings.SecretKey);
-                var config = new AmazonS3Config
-                {
-                    RegionEndpoint = Amazon.RegionEndpoint.EUCentral1
-                };
+                var image = await _bucketService.UploadFileToS3BucketAsync(file);
                 
-                using var client = new AmazonS3Client(credentials, config);
-                await using var newMemoryStream = new MemoryStream();
-                await file.CopyToAsync(newMemoryStream);
-
-                var fileExtension = Path.GetExtension(file.FileName);
-                var imageName = $"{GenerateId()}{fileExtension}";
-
-                // URL for Accessing Image
-                var result = $"https://{bucketName}.s3.amazonaws.com/{imageName}";
-
-                var uploadRequest = new TransferUtilityUploadRequest
-                {
-                    InputStream = newMemoryStream,
-                    Key = imageName,
-                    BucketName = bucketName,
-                    CannedACL = S3CannedACL.PublicRead
-                };
-
-                var fileTransferUtility = new TransferUtility(client);
-                await fileTransferUtility.UploadAsync(uploadRequest);
-
-                ImageMetadataModel documentStore = new ImageMetadataModel()
-                {
-                    UpdatedOn = DateTime.Now,
-                    Name = imageName,
-                    FileExtension = file.ContentType,
-                    SizeInBytes = file.Length
-                };
-
-                await _imageService.AddAsync(documentStore);
-
+                await _imageService.AddAsync(image);
             }
             catch (AmazonS3Exception amazonS3Exception)
             {
@@ -93,43 +48,25 @@ namespace xCloud.Task7.Controllers
 
             return RedirectToAction("AllFiles");
         }
-
+        
         public async Task<IActionResult> AllFiles()
         {
             return View(await _imageService.GetImagesMetadata());
         }
 
-        private string GenerateId()
-        {
-            //{00000000-0000-0000-0000-000000000000}
-            return Guid.NewGuid().ToString("N").ToUpper();
-        }
-
-        public async Task<IActionResult> DownloadFileByName(int id)
+        public async Task<IActionResult> DownloadFileAsync(int id)
         {
             try
             {
                 var image = await _imageService.GetImageByIdAsync(id);
-                var credentials = new BasicAWSCredentials(_appSettings.AccessKey, _appSettings.SecretKey);
-                var config = new AmazonS3Config
-                {
-                    RegionEndpoint = Amazon.RegionEndpoint.APSouth1
-                };
-                using var client = new AmazonS3Client(credentials, config);
-                var fileTransferUtility = new TransferUtility(client);
-
-                var objectResponse = await fileTransferUtility.S3Client.GetObjectAsync(new GetObjectRequest()
-                {
-                    BucketName = _appSettings.BucketName,
-                    Key = image.Name
-                });
-
-                if (objectResponse.ResponseStream == null)
+                var bucketObjectResponse = await _bucketService.DownloadFileAsync(image);
+                
+                if (bucketObjectResponse == null)
                 {
                     return NotFound();
                 }
                 
-                return File(objectResponse.ResponseStream, objectResponse.Headers.ContentType, image.Name);
+                return File(bucketObjectResponse.ResponseStream, bucketObjectResponse.Headers.ContentType, bucketObjectResponse.Key);
             }
             catch (AmazonS3Exception amazonS3Exception)
             {
@@ -145,28 +82,14 @@ namespace xCloud.Task7.Controllers
             }
 
         }
-
+        
         public async Task<IActionResult> DeleteFile(int id)
         {
             try
             {
-                var image = await _imageService.GetImageByIdAsync(id);
-                await _imageService.DeleteAsync(image);
-
-                var credentials = new BasicAWSCredentials(_appSettings.AccessKey, _appSettings.SecretKey);
-                var config = new AmazonS3Config
-                {
-                    RegionEndpoint = Amazon.RegionEndpoint.APSouth1
-                };
+                var imageName = await _imageService.DeleteByIdAsync(id);
                 
-                using var client = new AmazonS3Client(credentials, config);
-                var fileTransferUtility = new TransferUtility(client);
-                await fileTransferUtility.S3Client.DeleteObjectAsync(new DeleteObjectRequest()
-                {
-                    BucketName = _appSettings.BucketName,
-                    Key = image.Name
-                });
-
+                await _bucketService.DeleteFileAsync(imageName);
             }
             catch (AmazonS3Exception amazonS3Exception)
             {

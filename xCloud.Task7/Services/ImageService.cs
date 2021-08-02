@@ -2,9 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using xCloud.Task7.Data;
+using xCloud.Task7.Interfaces;
 using xCloud.Task7.Models;
 
-namespace xCloud.Task7.Data
+namespace xCloud.Task7.Services
 {
     public class ImageService : IImageService
     {
@@ -40,11 +42,18 @@ namespace xCloud.Task7.Data
             return await _blobDbContext.Images.FindAsync(id);
         }
 
-        public async Task DeleteAsync(ImageMetadataModel documentStore)
+        public async Task<ImageMetadataModel> DeleteByIdAsync(int id)
         {
-            _blobDbContext.Entry(documentStore).State = EntityState.Deleted;
+            var image = await _blobDbContext.Images.FindAsync(id);
+
+            if (image is not null)
+            {
+                _blobDbContext.Remove(image);
+            }
             
             await _blobDbContext.SaveChangesAsync();
+
+            return image;
         }
     }
 }

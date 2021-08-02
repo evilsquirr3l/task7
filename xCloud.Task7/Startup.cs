@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using xCloud.Task7.Data;
 using xCloud.Task7.Helpers;
+using xCloud.Task7.Interfaces;
+using xCloud.Task7.Services;
 
 namespace xCloud.Task7
 {
@@ -29,6 +31,8 @@ namespace xCloud.Task7
                 opt.UseNpgsql(connectionString));
 
             services.AddScoped<IImageService, ImageService>();
+
+            services.AddTransient<IBucketService, BucketService>();
             
             services.AddControllersWithViews();
         }
