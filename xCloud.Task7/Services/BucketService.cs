@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Amazon.S3.Transfer;
@@ -16,21 +15,18 @@ namespace xCloud.Task7.Services
     public class BucketService : IBucketService
     {
         private readonly AppSettings _appSettings;
+        private readonly IAwsService _awsService;
 
-        public BucketService(IOptions<AppSettings> appSettings)
+        public BucketService(IOptions<AppSettings> appSettings, IAwsService awsService)
         {
+            _awsService = awsService;
             _appSettings = appSettings.Value;
         }
         
         public async Task DeleteFileAsync(ImageMetadataModel image)
         {
-            var credentials = new BasicAWSCredentials(_appSettings.AccessKey, _appSettings.SecretKey);
-            var config = new AmazonS3Config
-            {
-                RegionEndpoint = Amazon.RegionEndpoint.APSouth1
-            };
+            var client = _awsService.GetBucketAccessClient();
 
-            using var client = new AmazonS3Client(credentials, config);
             var fileTransferUtility = new TransferUtility(client);
             
             await fileTransferUtility.S3Client.DeleteObjectAsync(new DeleteObjectRequest
@@ -42,13 +38,8 @@ namespace xCloud.Task7.Services
         
         public async Task<GetObjectResponse> DownloadFileAsync(ImageMetadataModel image)
         {
-            var credentials = new BasicAWSCredentials(_appSettings.AccessKey, _appSettings.SecretKey);
-            var config = new AmazonS3Config
-            {
-                RegionEndpoint = Amazon.RegionEndpoint.APSouth1
-            };
-            
-            using var client = new AmazonS3Client(credentials, config);
+            var client = _awsService.GetBucketAccessClient();
+
             var fileTransferUtility = new TransferUtility(client);
 
             var objectResponse = await fileTransferUtility.S3Client.GetObjectAsync(new GetObjectRequest()
@@ -66,13 +57,7 @@ namespace xCloud.Task7.Services
                 ? _appSettings.BucketName + @"/" + _appSettings.FolderName
                 : _appSettings.BucketName;
 
-            var credentials = new BasicAWSCredentials(_appSettings.AccessKey, _appSettings.SecretKey);
-            var config = new AmazonS3Config
-            {
-                RegionEndpoint = Amazon.RegionEndpoint.EUCentral1
-            };
-
-            using var client = new AmazonS3Client(credentials, config);
+            var client = _awsService.GetBucketAccessClient();
             await using var newMemoryStream = new MemoryStream();
             await file.CopyToAsync(newMemoryStream);
 
@@ -90,8 +75,7 @@ namespace xCloud.Task7.Services
                 CannedACL = S3CannedACL.PublicRead
             };
 
-            var fileTransferUtility = new TransferUtility(client);
-            await fileTransferUtility.UploadAsync(uploadRequest);
+            await new TransferUtility(client).UploadAsync(uploadRequest);
 
             return new ImageMetadataModel
             {

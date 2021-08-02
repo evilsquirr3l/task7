@@ -33,6 +33,7 @@ namespace xCloud.Task7
             services.AddScoped<IImageService, ImageService>();
 
             services.AddTransient<IBucketService, BucketService>();
+            services.AddTransient<IAwsService, AwsService>();
             
             services.AddControllersWithViews();
         }
