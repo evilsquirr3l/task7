@@ -1,5 +1,10 @@
+using System.IO;
+using System.Net;
+using Amazon.S3;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,8 +52,26 @@ namespace xCloud.Task7
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseExceptionHandler(builder =>
+                {
+                    builder.Run(async httpContext =>
+                    {
+                        var feature = httpContext.Features.Get<IExceptionHandlerPathFeature>();
+                        httpContext.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                        var exception = feature.Error;
+
+                        string message = exception switch
+                        {
+                            AmazonS3Exception {ErrorCode: "InvalidAccessKeyId" or "InvalidSecurity"} => "Check the provided AWS Credentials",
+                            AmazonS3Exception s3Exception => $"S3 bucket exception: {s3Exception.Message}",
+                            IOException io => $"I/O exception: {io.Message}",
+                            _ => "Oh, shit. I'm sorry"
+                        };
+
+                        await httpContext.Response.WriteAsync(message);
+                    });
+                });
+                
                 app.UseHsts();
             }
             
