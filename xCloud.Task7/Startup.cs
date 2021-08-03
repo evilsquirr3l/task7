@@ -41,6 +41,7 @@ namespace xCloud.Task7
             services.AddTransient<IAwsService, AwsService>();
             services.AddTransient<ISubscriptionService, SubscriptionService>();
             services.AddTransient<ISqsService, SqsService>();
+            services.AddHostedService<TimedHostedService>();
             
             services.AddControllersWithViews();
         }

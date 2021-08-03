@@ -6,5 +6,7 @@ namespace xCloud.Task7.Interfaces
     public interface ISqsService
     {
         Task<SendMessageResponse> PublishEventToSqsQueue(string message);
+
+        Task SendMessageBatchRequest();
     }
 }
