@@ -24,6 +24,11 @@ namespace xCloud.Task7.Controllers
         {
             var subscribeResponse = await _subscriptionService.SubscribeForNotifications(email);
 
+            if (subscribeResponse is null)
+            {
+                return NotFound();
+            }
+            
             return View(subscribeResponse.ResponseMetadata);
         }
         
@@ -38,6 +43,11 @@ namespace xCloud.Task7.Controllers
         {
             var unsubscribeResponse = await _subscriptionService.UnsubscribeFromTopic(email);
 
+            if (unsubscribeResponse is null)
+            {
+                return NotFound();
+            }
+            
             return View(unsubscribeResponse.ResponseMetadata);
         }
     }
