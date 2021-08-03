@@ -19,7 +19,6 @@ namespace xCloud.Task7.Services
             using var snsClient = _awsService.GetSnsAccessClient();
 
             var subscribers = await snsClient.ListSubscriptionsByTopicAsync(_awsService.GetSnsTopicArn());
-
             var subscription = subscribers.Subscriptions.FirstOrDefault(x => x.Endpoint == email);
 
             if (subscription is null)

@@ -13,5 +13,7 @@ namespace xCloud.Task7.Helpers
         public string Region { get; set; }
         
         public string TopicArn { get; set; }
+
+        public string QueueName { get; set; }
     }
 }

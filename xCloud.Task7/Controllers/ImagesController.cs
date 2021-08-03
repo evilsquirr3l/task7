@@ -9,11 +9,13 @@ namespace xCloud.Task7.Controllers
     {
         private readonly IImageService _imageService;
         private readonly IBucketService _bucketService;
+        private readonly ISqsService _sqsService;
 
-        public ImagesController(IImageService imageService, IBucketService bucketService)
+        public ImagesController(IImageService imageService, IBucketService bucketService, ISqsService sqsService)
         {
             _imageService = imageService;
             _bucketService = bucketService;
+            _sqsService = sqsService;
         }
 
         [HttpGet]
@@ -28,6 +30,12 @@ namespace xCloud.Task7.Controllers
             var image = await _bucketService.UploadFileToS3BucketAsync(file);
 
             await _imageService.AddMetadataToDatabaseAsync(image);
+            
+            var message = @$"Image with name {image.Name}, extension {image.FileExtension} 
+                            and size {image.SizeInBytes} was uploaded! 
+                            You can download it here: {Request.Path.Value}";
+            
+            await _sqsService.PublishEventToSqsQueue(message);
 
             return RedirectToAction("AllFiles");
         }
@@ -56,8 +64,7 @@ namespace xCloud.Task7.Controllers
             var imageName = await _imageService.DeleteMetadataByIdAsync(id);
 
             await _bucketService.DeleteFileAsync(imageName);
-
-
+            
             return RedirectToAction("AllFiles");
         }
     }

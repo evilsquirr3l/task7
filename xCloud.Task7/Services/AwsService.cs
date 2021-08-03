@@ -1,6 +1,8 @@
+using System.Threading.Tasks;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.SimpleNotificationService;
+using Amazon.SQS;
 using Microsoft.Extensions.Options;
 using xCloud.Task7.Helpers;
 using xCloud.Task7.Interfaces;
@@ -46,6 +48,26 @@ namespace xCloud.Task7.Services
         public string GetSnsTopicArn()
         {
             return _appSettings.TopicArn;
+        }
+
+        public AmazonSQSClient GetSqsClient()
+        {
+            var credentials = GetAwsCredentials();
+            var config = new AmazonSQSConfig
+            {
+                RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(_appSettings.Region)
+            };
+
+            return new AmazonSQSClient(credentials, config);
+        }
+
+        public async Task<string> GetQueueUrl()
+        {
+            using var client = GetSqsClient();
+
+            var getQueueUrlResponse = await client.GetQueueUrlAsync(_appSettings.QueueName);
+            
+            return getQueueUrlResponse.QueueUrl;
         }
     }
 }
