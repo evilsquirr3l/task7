@@ -11,5 +11,7 @@ namespace xCloud.Task7.Helpers
         public string FolderName { get; set; }
 
         public string Region { get; set; }
+        
+        public string TopicArn { get; set; }
     }
 }
