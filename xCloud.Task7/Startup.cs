@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Net;
 using Amazon.S3;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using xCloud.Task7.Data;
 using xCloud.Task7.Helpers;
 using xCloud.Task7.Interfaces;
+using xCloud.Task7.Models;
 using xCloud.Task7.Services;
 
 namespace xCloud.Task7
@@ -39,6 +41,7 @@ namespace xCloud.Task7
 
             services.AddTransient<IBucketService, BucketService>();
             services.AddTransient<IAwsService, AwsService>();
+            services.AddTransient<IObserver<ImageMetadataModel>, NotificationSubscriber>();
             
             services.AddControllersWithViews();
         }

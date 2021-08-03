@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using xCloud.Task7.Models;
 
 namespace xCloud.Task7.Interfaces
 {
-    public interface IImageService
+    public interface IImageService : IObservable<ImageMetadataModel>
     {
         Task AddMetadataToDatabaseAsync(ImageMetadataModel image);
 
