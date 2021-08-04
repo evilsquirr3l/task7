@@ -26,7 +26,7 @@ namespace xCloud.Task7.Services
             return await sqsClient.SendMessageAsync(request);
         }
 
-        public async Task SendMessageBatchRequest()
+        public async Task SendSqsMessagesInBatchRequest()
         {
             using var sqsClient = _awsService.GetSqsClient();
             var queueUrl = await _awsService.GetQueueUrl();

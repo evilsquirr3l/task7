@@ -6,12 +6,12 @@ using xCloud.Task7.Interfaces;
 
 namespace xCloud.Task7.Services
 {
-    public class TimedHostedService : IHostedService, IDisposable
+    public class HostedService : IHostedService, IDisposable
     {
         private Timer _timer;
         private readonly ISqsService _sqsService;
 
-        public TimedHostedService(ISqsService sqsService)
+        public HostedService(ISqsService sqsService)
         {
             _sqsService = sqsService;
         }
@@ -27,7 +27,7 @@ namespace xCloud.Task7.Services
 
         private void ScheduledMethod(object state)
         {
-            _sqsService.SendMessageBatchRequest();
+            _sqsService.SendSqsMessagesInBatchRequest();
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
