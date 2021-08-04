@@ -1,5 +1,7 @@
 using System.Net;
 using Amazon.S3;
+using Amazon.SimpleNotificationService;
+using Amazon.SQS;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -60,12 +62,19 @@ namespace xCloud.Task7
                     {
                         var feature = httpContext.Features.Get<IExceptionHandlerPathFeature>();
                         httpContext.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
-                        var exception = feature.Error;
 
-                        string message = exception switch
+                        var message = feature.Error switch
                         {
-                            AmazonS3Exception {ErrorCode: "InvalidAccessKeyId" or "InvalidSecurity"} => "Check the provided AWS Credentials",
-                            _ => "Oh, shit. I'm sorry"
+                            AmazonS3Exception {ErrorCode: "InvalidAccessKeyId" or "InvalidSecurity"} 
+                                => "Check the provided AWS Credentials",
+                            
+                            AmazonSQSException {ErrorCode: "MissingAuthenticationToken"} 
+                                => "Check the provided AWS Credentials",
+                            
+                            AmazonSimpleNotificationServiceException {ErrorCode: "InvalidClientTokenId"} 
+                                => "Check the provided AWS Credentials",
+                            
+                            _ => "OOPS, something broke."
                         };
 
                         await httpContext.Response.WriteAsync(message);
