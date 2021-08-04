@@ -5,7 +5,7 @@ using xCloud.Task7.Models;
 
 namespace xCloud.Task7.Interfaces
 {
-    public interface IBucketService
+    public interface IS3Service
     {
         Task DeleteFileAsync(ImageMetadataModel image);
         

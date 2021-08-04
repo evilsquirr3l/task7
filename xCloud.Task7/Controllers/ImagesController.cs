@@ -8,13 +8,13 @@ namespace xCloud.Task7.Controllers
     public class ImagesController : Controller
     {
         private readonly IImageService _imageService;
-        private readonly IBucketService _bucketService;
+        private readonly IS3Service _s3Service;
         private readonly ISqsService _sqsService;
 
-        public ImagesController(IImageService imageService, IBucketService bucketService, ISqsService sqsService)
+        public ImagesController(IImageService imageService, IS3Service S3Service, ISqsService sqsService)
         {
             _imageService = imageService;
-            _bucketService = bucketService;
+            _s3Service = S3Service;
             _sqsService = sqsService;
         }
 
@@ -27,7 +27,7 @@ namespace xCloud.Task7.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
-            var image = await _bucketService.UploadFileToS3BucketAsync(file);
+            var image = await _s3Service.UploadFileToS3BucketAsync(file);
 
             await _imageService.AddMetadataToDatabaseAsync(image);
             
@@ -48,7 +48,7 @@ namespace xCloud.Task7.Controllers
         public async Task<IActionResult> DownloadFileAsync(int id)
         {
             var image = await _imageService.GetImageMetadataByIdAsync(id);
-            var bucketObjectResponse = await _bucketService.DownloadFileAsync(image);
+            var bucketObjectResponse = await _s3Service.DownloadFileAsync(image);
 
             if (image is null)
             {
@@ -63,7 +63,7 @@ namespace xCloud.Task7.Controllers
         {
             var imageName = await _imageService.DeleteMetadataByIdAsync(id);
 
-            await _bucketService.DeleteFileAsync(imageName);
+            await _s3Service.DeleteFileAsync(imageName);
             
             return RedirectToAction("AllFiles");
         }

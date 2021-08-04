@@ -35,7 +35,7 @@ namespace xCloud.Task7
 
             services.AddScoped<IImageService, ImageService>();
 
-            services.AddTransient<IBucketService, BucketService>();
+            services.AddTransient<IS3Service, S3Service>();
             services.AddTransient<IAwsService, AwsService>();
             services.AddTransient<ISubscriptionService, SubscriptionService>();
             services.AddTransient<ISqsService, SqsService>();

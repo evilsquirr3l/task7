@@ -12,12 +12,12 @@ using xCloud.Task7.Models;
 
 namespace xCloud.Task7.Services
 {
-    public class BucketService : IBucketService
+    public class S3Service : IS3Service
     {
         private readonly AppSettings _appSettings;
         private readonly IAwsService _awsService;
 
-        public BucketService(IOptions<AppSettings> appSettings, IAwsService awsService)
+        public S3Service(IOptions<AppSettings> appSettings, IAwsService awsService)
         {
             _awsService = awsService;
             _appSettings = appSettings.Value;
