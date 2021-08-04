@@ -1,4 +1,3 @@
-using System.IO;
 using System.Net;
 using Amazon.S3;
 using Microsoft.AspNetCore.Builder;
@@ -24,8 +23,7 @@ namespace xCloud.Task7
         }
 
         public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
+        
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<AppSettings>(Configuration.GetSection("AwsSettings"));
@@ -41,12 +39,12 @@ namespace xCloud.Task7
             services.AddTransient<IAwsService, AwsService>();
             services.AddTransient<ISubscriptionService, SubscriptionService>();
             services.AddTransient<ISqsService, SqsService>();
+            
             services.AddHostedService<HostedService>();
             
             services.AddControllersWithViews();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, BlobDbContext dbContext)
         {
             if (env.IsDevelopment())
@@ -67,8 +65,6 @@ namespace xCloud.Task7
                         string message = exception switch
                         {
                             AmazonS3Exception {ErrorCode: "InvalidAccessKeyId" or "InvalidSecurity"} => "Check the provided AWS Credentials",
-                            AmazonS3Exception s3Exception => $"S3 bucket exception: {s3Exception.Message}",
-                            IOException io => $"I/O exception: {io.Message}",
                             _ => "Oh, shit. I'm sorry"
                         };
 
