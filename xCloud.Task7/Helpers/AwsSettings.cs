@@ -15,5 +15,7 @@ namespace xCloud.Task7.Helpers
         public string SnsTopicArn { get; set; }
 
         public string QueueName { get; set; }
+
+        public string LambdaArn { get; set; }
     }
 }

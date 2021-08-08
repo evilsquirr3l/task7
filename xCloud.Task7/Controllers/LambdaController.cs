@@ -1,12 +1,18 @@
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using xCloud.Task7.Interfaces;
 
 namespace xCloud.Task7.Controllers
 {
     public class LambdaController : Controller
     {
+        private IAwsService _awsService;
+
+        public LambdaController(IAwsService awsService)
+        {
+            _awsService = awsService;
+        }
+
         [HttpGet]
         public IActionResult TriggerLambda()
         {
@@ -14,15 +20,11 @@ namespace xCloud.Task7.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> TriggerLambda(string uri)
+        public async Task<IActionResult> TriggerLambda(string payload)
         {
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Accept.Clear();
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            await _awsService.InvokeLambda(payload);
 
-            await httpClient.GetAsync(uri);
-
-            return Ok("Request was sent.");
+            return View();
         }
     }
 }

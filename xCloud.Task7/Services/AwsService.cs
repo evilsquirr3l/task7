@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using Amazon.Lambda;
+using Amazon.Lambda.Model;
 using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.SimpleNotificationService;
@@ -68,6 +70,19 @@ namespace xCloud.Task7.Services
             var getQueueUrlResponse = await client.GetQueueUrlAsync(_appSettings.QueueName);
             
             return getQueueUrlResponse.QueueUrl;
+        }
+
+        public async Task InvokeLambda(string payload)
+        {
+            var invokeRequest = new InvokeRequest()
+            {
+                FunctionName = _appSettings.LambdaArn,
+                Payload = payload
+            };
+            
+            using var lambda = new AmazonLambdaClient();
+
+            await lambda.InvokeAsync(invokeRequest);
         }
     }
 }

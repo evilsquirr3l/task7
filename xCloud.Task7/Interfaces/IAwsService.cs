@@ -16,5 +16,7 @@ namespace xCloud.Task7.Interfaces
         AmazonSQSClient GetSqsClient();
 
         Task<string> GetQueueUrl();
+
+        Task InvokeLambda(string payload);
     }
 }
