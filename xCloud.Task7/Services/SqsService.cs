@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Amazon.SimpleNotificationService.Model;
 using Amazon.SQS;
 using Amazon.SQS.Model;
 using xCloud.Task7.Interfaces;
@@ -26,20 +26,30 @@ namespace xCloud.Task7.Services
             return await sqsClient.SendMessageAsync(request);
         }
 
-        public async Task SendSqsMessagesInBatchRequest()
+        public async Task SendSqsMessagesToSnsTopic()
         {
             using var sqsClient = _awsService.GetSqsClient();
+            using var snsClient = _awsService.GetSnsAccessClient();
             var queueUrl = await _awsService.GetQueueUrl();
 
             var listOfMessages = await GetMessages(sqsClient, queueUrl, 3, 5);
 
-            var sendMessageBatchRequest = new SendMessageBatchRequest
+            var numberOfMessages = listOfMessages.Count;
+            if (numberOfMessages == 0)
             {
-                Entries = listOfMessages.Select(message => new SendMessageBatchRequestEntry(message.MessageId, message.Body)).ToList(),
-                QueueUrl = await _awsService.GetQueueUrl()
-            };
+                return;
+            }
             
-            await sqsClient.SendMessageBatchAsync(sendMessageBatchRequest);
+            var emailBody = "";
+            for (int i = 0; i < numberOfMessages; i++)
+            {
+                var messageNumber = i + 1;
+                emailBody += @$"You have unread messages: {messageNumber}. {listOfMessages[i].Body}";
+            }
+
+            var publishRequest = new PublishRequest(_awsService.GetSnsTopicArn(), emailBody);
+            
+            await snsClient.PublishAsync(publishRequest);
         }
         
         private static async Task<List<Message>> GetMessages(

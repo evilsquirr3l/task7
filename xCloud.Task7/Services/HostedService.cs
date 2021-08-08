@@ -27,7 +27,7 @@ namespace xCloud.Task7.Services
 
         private void ScheduledMethod(object state)
         {
-            _sqsService.SendSqsMessagesInBatchRequest();
+            _sqsService.SendSqsMessagesToSnsTopic();
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

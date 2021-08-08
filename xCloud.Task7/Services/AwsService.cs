@@ -47,7 +47,7 @@ namespace xCloud.Task7.Services
 
         public string GetSnsTopicArn()
         {
-            return _appSettings.TopicArn;
+            return _appSettings.SnsTopicArn;
         }
 
         public AmazonSQSClient GetSqsClient()

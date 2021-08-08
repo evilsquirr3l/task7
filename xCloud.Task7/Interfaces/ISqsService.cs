@@ -7,6 +7,6 @@ namespace xCloud.Task7.Interfaces
     {
         Task<SendMessageResponse> PublishEventToSqsQueue(string message);
 
-        Task SendSqsMessagesInBatchRequest();
+        Task SendSqsMessagesToSnsTopic();
     }
 }
